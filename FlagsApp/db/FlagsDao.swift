@@ -7,7 +7,7 @@
 
 import Foundation
 
-class FlagsDao {
+class FlagsDao: FlagsHelper {
     var db: FMDatabase?
     
     init() {
@@ -15,13 +15,13 @@ class FlagsDao {
         db = FMDatabase(path: file?.path)
     }
     
-    func fetchAll() -> [Flag] {
+    func fetchFlags() -> [Flag] {
         var flags: [Flag] = [Flag]()
         
         db?.open()
         
         do {
-            let cursor = try db?.executeQuery("SELECT * FROM Flags", values: nil)
+            let cursor = try db?.executeQuery("SELECT * FROM Flags ORDER BY RANDOM()", values: nil)
             
             guard let row = cursor else {
                 throw FlagError.CURSOR_ERROR
@@ -39,13 +39,13 @@ class FlagsDao {
         return flags
     }
     
-    func fetchRandomly(id: Int) -> [Flag] {
+    func fetchFlagsByRandomly(without id: Int) -> [Flag] {
         var flags: [Flag] = [Flag]()
         
         db?.open()
         
         do {
-            let cursor = try db?.executeQuery("SELECT * FROM Flags ORDER BY RANDOM() LIMIT 4 WHERE id != ?", values: [id])
+            let cursor = try db?.executeQuery("SELECT * FROM Flags WHERE id != ? ORDER BY RANDOM() LIMIT 3", values: [id])
             
             guard let row = cursor else {
                 throw FlagError.CURSOR_ERROR
@@ -62,5 +62,4 @@ class FlagsDao {
         
         return flags
     }
-    
 }
